@@ -87,7 +87,7 @@ export default function Home() {
               Package finder
             </h1>
             <div className="float-right p-2">
-              <Link href="" passHref>
+              <Link href="https://github.com/notageek-guy/package-finder" passHref>
                 <FaGithub className="text-2xl text-white" />
               </Link>
             </div>
