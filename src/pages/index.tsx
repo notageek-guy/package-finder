@@ -8,10 +8,23 @@ import { FiCopy } from "react-icons/fi";
 import { FaGithub } from "react-icons/fa";
 import Link from "next/link";
 export default function Home() {
-  const [packageName, setPackageName] = useState<string>("");
+  const [packageName, setPackageName] = useState<string>("node");
 
   const notify = () => toast("Copied to clipboard!");
-  const [data, setData] = useState<any>(null);
+  const [packageData, setPackageData] = useState<{
+    name: string;
+    version: string;
+    link: string;
+    downloads: string;
+    commandToDownload: string;
+  }>({
+    name: "node",
+    version: "19.6.0",
+    link: "github.com/aredridel/node-bin-gen#readme",
+    commandToDownload: "npm i node",
+    downloads: "402,746",
+  });
+
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const fetchData = async () => {
@@ -26,7 +39,14 @@ export default function Home() {
         }),
       });
       const data = await res.json();
-      setData(data);
+      setPackageData({
+        name: data.name,
+        version: data.version,
+        link: data.link,
+        downloads: data.downloads,
+        commandToDownload: data.commandToDownload,
+      });
+      setLoading(false);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -36,7 +56,7 @@ export default function Home() {
 
   async function copyToClipboard() {
     try {
-      await navigator.clipboard.writeText(data.link);
+      await navigator.clipboard.writeText(packageData.link);
       notify();
     } catch (err) {
       console.error("Failed to copy!", err);
@@ -45,7 +65,9 @@ export default function Home() {
 
   async function copyCodeToClipboard() {
     try {
-      await navigator.clipboard.writeText(` ${data?.commandToDownload} --save`);
+      await navigator.clipboard.writeText(
+        ` ${packageData?.commandToDownload} --save`
+      );
       notify();
     } catch (err) {
       console.error("Failed to copy!", err);
@@ -59,14 +81,14 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <div className="bg-gradient-to-br from-black to-gray-800 min-h-screen">
+        <div className="min-h-screen bg-gradient-to-br from-black to-gray-800">
           <div className="container p-4 mx-auto">
-            <h1 className="text-2xl text-white font-bold sm:text-4xl md:text-5xl lg:text-6xl text-center">
+            <h1 className="text-2xl font-bold text-center text-white sm:text-4xl md:text-5xl lg:text-6xl">
               Package finder
             </h1>
             <div className="float-right p-2">
               <Link href="" passHref>
-                <FaGithub className="text-white text-2xl" />
+                <FaGithub className="text-2xl text-white" />
               </Link>
             </div>
 
@@ -76,23 +98,20 @@ export default function Home() {
                 setPackageName={setPackageName}
                 fetchData={fetchData}
               />
-              {data && (
+              {!loading && (
                 <Details
-                  downloads={data.downloads}
-                  version={data.version}
-                  link={data.link}
+                  downloads={packageData?.downloads}
+                  version={packageData?.version}
+                  link={packageData?.link}
                   copyToClipboard={copyToClipboard}
                 />
               )}
             </div>
-            {data && (
+            {!loading && (
               <div className="max-w-lg mx-auto mt-12">
-                <div
-                  className="bg-white shadow-lg rounded-lg p-4 cursor-pointer
-              "
-                >
+                <div className="p-4 bg-white rounded-lg shadow-lg cursor-pointer ">
                   <code className="text-black">
-                    {data?.commandToDownload} --save
+                    {packageData?.commandToDownload} --save
                   </code>
                   <FiCopy
                     onClick={copyCodeToClipboard}
